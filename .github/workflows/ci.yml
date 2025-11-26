@@ -30,4 +30,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-report
-          path: reports/final_report.md
+          path: Reports/final_report.md
