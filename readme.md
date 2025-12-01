@@ -8,6 +8,28 @@ This repo contains an automation framework that validates:
 4. **Automation readiness for CI/CD pipelines**
 
 ---
+## AI Model – what we validate and how
+
+The AI model is treated as a pre‑trained service reachable at config['api']['base_url']. Tests send JSON to the model and validate structure, safety, and behavior. Key assertions:
+
+- *Valid patient data*: For each row in valid_patient, POST payload and expect:
+  - HTTP 200
+  - Response contains risk_level
+- *Invalid JSON*: For each row in invalid_json, POST the raw broken_json string:
+  - HTTP 200
+  - Response error equals expected_error
+- *Edge-case text*: For each row in edge_text, POST symptoms as free text:
+  - HTTP 200
+  - Response contains risk_level and diagnosis is None
+- *Irrelevant text*: Parametric check that unrelated prompts return:
+  - message == "no medically relevant content"
+- *PII masking (phones)*:
+  - Send a payload with "phone": generate_random_phone()
+  - Ensure the JSON response does not contain any unmasked 10‑digit sequence (\b\d{10}\b)
+- *Logs endpoint*:
+  - Verify logs endpoint (config['api']['logs_url']) responds with 200 for observability
+
+---
 
 ## Tech Stack:
 
@@ -88,6 +110,22 @@ pytest automation/tests/test_ui_validation.py -v
 ```
 pytest automation/tests/test_model_integration.py -v
 ```
+
+---
+
+## Reports
+
+Generate a self‑contained HTML report (requires pytest-html):
+
+
+pytest AutonomizeAI-Assignment/AutoTests/test_model_integration.py -v --html=AutonomizeAI-Assignment/Reports/model_integration_report.html --self-contained-html
+
+
+Open the report on macOS:
+
+
+open "./AutonomizeAI-Assignment/Reports/Sample_Report.html"
+
 
 ---
 

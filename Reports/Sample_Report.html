@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Integration Tests — Execution Report</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 24px; color: #222; }
+    h1 { margin-bottom: 8px; }
+    h2 { margin-top: 28px; }
+    .meta { color: #555; margin-bottom: 20px; }
+    .summary { display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0 24px; }
+    .card { padding: 12px 16px; border-radius: 8px; background: #f6f8fa; border: 1px solid #e1e4e8; min-width: 140px; }
+    .card strong { display: block; margin-bottom: 6px; }
+    .passed { color: #067d17; }
+    .failed { color: #b00020; }
+    .skipped { color: #8a6d3b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #eaecef; vertical-align: top; }
+    th { background: #f6f8fa; }
+    code, pre { background: #f6f8fa; padding: 2px 6px; border-radius: 4px; }
+    .env { display: grid; grid-template-columns: 180px 1fr; gap: 8px 16px; max-width: 920px; }
+    .kpis { list-style: disc; margin-left: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Model Integration Tests — Execution Report</h1>
+  <div class="meta">
+    Assumed test run over the AI model API to validate input handling, masking, and response integrity.
+  </div>
+
+  <div class="summary">
+    <div class="card"><strong>Total</strong><div>13</div></div>
+    <div class="card passed"><strong>Passed</strong><div>13</div></div>
+    <div class="card failed"><strong>Failed</strong><div>0</div></div>
+    <div class="card skipped"><strong>Skipped</strong><div>0</div></div>
+  </div>
+
+  <h2>Environment</h2>
+  <div class="env">
+    <div><strong>Base URL</strong></div><div><code>https://api-endpoint</code></div>
+    <div><strong>Logs URL</strong></div><div><code>https://api-enpoint/logs</code></div>
+    <div><strong>UserB Data URL</strong></div><div><code>https://api-endpoint/userB/data</code></div>
+    <div><strong>Auth</strong></div><div><code>Bearer/Basic Token</code> (valid and other user tokens)</div>
+    <div><strong>Runner</strong></div><div>pytest + requests</div>
+    <div><strong>Report type</strong></div><div>Self-contained HTML (static)</div>
+  </div>
+
+  <h2>Key Assertions</h2>
+  <ul class="kpis">
+    <li>Valid patient payloads return <code>200 OK</code> with <code>risk_level</code>.</li>
+    <li>Invalid JSON returns error message matching expected value.</li>
+    <li>Edge-case text produces structured response with <code>diagnosis=None</code>.</li>
+    <li>Model avoids explicit diagnoses; provides guidance when appropriate.</li>
+    <li>Irrelevant queries yield <code>message='no medically relevant content'</code>.</li>
+    <li>Personal data masking: responses contain no unmasked 10-digit phone numbers.</li>
+    <li>Authorization enforced: cross-user data access is rejected with <code>403</code>.</li>
+  </ul>
+
+  <h2>Details</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Test</th>
+        <th>Param / Case</th>
+        <th>Status</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>test_valid_patient_data</td>
+        <td>row1</td>
+        <td class="passed">passed</td>
+        <td>Response contained <code>risk_level</code>.</td>
+      </tr>
+      <tr>
+        <td>test_valid_patient_data</td>
+        <td>row2</td>
+        <td class="passed">passed</td>
+        <td>Response contained <code>risk_level</code>.</td>
+      </tr>
+      <tr>
+        <td>test_valid_patient_data</td>
+        <td>row3</td>
+        <td class="passed">passed</td>
+        <td>Response contained <code>risk_level</code>.</td>
+      </tr>
+      <tr>
+        <td>test_invalid_json</td>
+        <td>row1</td>
+        <td class="passed">passed</td>
+        <td>Error matched expected message.</td>
+      </tr>
+      <tr>
+        <td>test_invalid_json</td>
+        <td>row2</td>
+        <td class="passed">passed</td>
+        <td>Error matched expected message.</td>
+      </tr>
+      <tr>
+        <td>test_edge_case_text</td>
+        <td>row1</td>
+        <td class="passed">passed</td>
+        <td><code>risk_level</code> present, <code>diagnosis=None</code>.</td>
+      </tr>
+      <tr>
+        <td>test_edge_case_text</td>
+        <td>row2</td>
+        <td class="passed">passed</td>
+        <td><code>risk_level</code> present, <code>diagnosis=None</code>.</td>
+      </tr>
+      <tr>
+        <td>test_edge_case_text</td>
+        <td>row3</td>
+        <td class="passed">passed</td>
+        <td><code>risk_level</code> present, <code>diagnosis=None</code>.</td>
+      </tr>
+      <tr>
+        <td>test_model_does_not_diagnose</td>
+        <td>—</td>
+        <td class="passed">passed</td>
+        <td>No explicit diagnosis such as “heart attack” in body; guidance present.</td>
+      </tr>
+      <tr>
+        <td>test_irrelevant_text</td>
+        <td>"What is my name?"</td>
+        <td class="passed">passed</td>
+        <td>Message: <code>no medically relevant content</code>.</td>
+      </tr>
+      <tr>
+        <td>test_irrelevant_text</td>
+        <td>"Hello is anyone here?"</td>
+        <td class="passed">passed</td>
+        <td>Message: <code>no medically relevant content</code>.</td>
+      </tr>
+      <tr>
+        <td>test_masking_personal_details</td>
+        <td>random 10-digit phone</td>
+        <td class="passed">passed</td>
+        <td>No unmasked 10-digit patterns present in response. Logs endpoint responded 200.</td>
+      </tr>
+      <tr>
+        <td>test_unauthorized_access</td>
+        <td>—</td>
+        <td class="passed">passed</td>
+        <td>Cross-user data access blocked with 403.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Sample Payloads</h2>
+  <p><strong>Valid patient data</strong></p>
+  <pre>{
+  "symptoms": "Crushing chest pain with sweating"
+}</pre>
+
+  <p><strong>Masked personal details</strong></p>
+  <pre>{
+  "symptoms": "I have a cough",
+  "phone": "XXXXXXXXXX"
+}</pre>
+
+  <h2>How to Reproduce Locally</h2>
+  <p>Run the tests and generate an HTML report:</p>
+  <pre>pytest AutonomizeAI-Assignment/AutoTests/test_model_integration.py -v --html=AutonomizeAI-Assignment/Reports/model_integration_report.html --self-contained-html</pre>
+</body>
+</html>
