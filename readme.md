@@ -29,6 +29,23 @@ The AI model is treated as a pre‑trained service reachable at config['api']['b
 - *Logs endpoint*:
   - Verify logs endpoint (config['api']['logs_url']) responds with 200 for observability
 
+### Test data (.xlsx)
+
+Test input data for the API (and some UI scenarios) are sourced from an Excel workbook. By default the framework expects an .xlsx file (for example: automation/testdata/testdata.xlsx) that contains one or more sheets matching the test data sets referenced in tests.
+
+Typical expected sheet names and usage:
+- valid_patient — rows containing valid patient JSON fields used for positive model integration tests
+- invalid_json — rows containing broken_json strings and expected_error values
+- edge_text — free-text symptom cases for edge checks
+- irrelevant_text — prompts that should yield "no medically relevant content"
+- pii_masking — rows used to validate PII redaction (phones, etc.)
+
+Notes:
+- Tests read the spreadsheet at runtime (using pandas/openpyxl). Ensure pandas and openpyxl are installed:
+  - pip install pandas openpyxl
+- The test loader uses the path configured in your test config (e.g., config['testdata']['file']). You can override this by setting the appropriate config value or by providing a path via environment variable if the test harness supports it.
+- Keep sheet column names aligned with the test expectations (e.g., 'symptoms', 'broken_json', 'expected_error', 'phone', etc.).
+
 ---
 
 ## Tech Stack:
@@ -110,6 +127,8 @@ pytest automation/tests/test_ui_validation.py -v
 ```
 pytest automation/tests/test_model_integration.py -v
 ```
+
+If you want to run tests against a specific testdata workbook, update your test config to point to that .xlsx (e.g., config['testdata']['file'] = "automation/testdata/testdata.xlsx") or set the corresponding environment variable if supported by your test runner.
 
 ---
 
